@@ -71,7 +71,7 @@ class _SketchpadState extends State<Sketchpad> {
       body: GestureDetector(
         onPanStart: (details) {
           setState(() {
-            currentStroke =[]; //ممكن تبقي تشيليهل
+            currentStroke = [];
             currentStroke.add(CustomItem(
                 offset: details.localPosition,
                 paint: Paint()
@@ -86,7 +86,6 @@ class _SketchpadState extends State<Sketchpad> {
 
             final lastPoint = currentStroke.last.offset;
 
-            // 👇 السحر هنا
             final smoothPoint = Offset(
               lastPoint.dx + (newPoint.dx - lastPoint.dx) * smoothingFactor,
               lastPoint.dy + (newPoint.dy - lastPoint.dy) * smoothingFactor,
