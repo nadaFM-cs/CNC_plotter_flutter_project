@@ -21,7 +21,9 @@ class _SketchpadState extends State<Sketchpad> {
   ];
   Color selectColor = Color(0xFFFDEFB4);
   double Font = 5.0;
-  List paints=[];
+  List <List<CustomItem>> strokes =[];
+  List <CustomItem>currentStroke=[];
+  double smoothingFactor = 0.2;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,25 +71,45 @@ class _SketchpadState extends State<Sketchpad> {
       body: GestureDetector(
         onPanStart: (details) {
           setState(() {
-            paints.add(CustomItem(
+            currentStroke =[]; //ممكن تبقي تشيليهل
+            currentStroke.add(CustomItem(
                 offset: details.localPosition,
                 paint: Paint()
                   ..color = selectColor
                   ..strokeWidth =Font));
           });
         },
-        onPanUpdate: (details){
-          setState(() {
-            paints.add(CustomItem(
-                offset: details.localPosition,
-                paint: Paint()
-                  ..color = selectColor
-                  ..strokeWidth =Font));
-          });
-        },
+          onPanUpdate: (details) {
+            final newPoint = details.localPosition;
+
+            if (currentStroke.isEmpty) return;
+
+            final lastPoint = currentStroke.last.offset;
+
+            // 👇 السحر هنا
+            final smoothPoint = Offset(
+              lastPoint.dx + (newPoint.dx - lastPoint.dx) * smoothingFactor,
+              lastPoint.dy + (newPoint.dy - lastPoint.dy) * smoothingFactor,
+            );
+
+            setState(() {
+              currentStroke.add(
+                CustomItem(
+                  offset: smoothPoint,
+                  paint: Paint()
+                    ..color = selectColor
+                    ..strokeWidth = Font
+                    ..strokeCap = StrokeCap.round
+                    ..strokeJoin = StrokeJoin.round
+                    ..style = PaintingStyle.stroke,
+                ),
+              );
+            });
+          },
         onPanEnd: (details){
           setState(() {
-            paints.add(null);
+            strokes.add(currentStroke);
+            currentStroke =[];
           });
         },
         child: Container(
@@ -98,7 +120,10 @@ class _SketchpadState extends State<Sketchpad> {
             children: [
               CustomPaint(
                 child: Container(),
-                painter: namePainter(paints: paints),
+                painter: namePainter(
+                  strokes: strokes,
+                  currentStroke: currentStroke,
+                ),
               ),
               Positioned(
                 top: 20.0,
@@ -120,15 +145,16 @@ class _SketchpadState extends State<Sketchpad> {
                               }
                         ),
                       ),
-                      if(paints.isNotEmpty) IconButton(
+                      if(strokes.isNotEmpty) IconButton(
                           onPressed: (){
                             setState(() {
-                              paints.removeLast();
-                              paints.removeLast();
-                              paints.add(null);
+                                  strokes.removeLast();
                             });
                           },
-                          icon: Icon(Icons.settings_backup_restore_outlined,color:  Color(0xFF7C3FB1),)
+                          icon: Icon(
+                            Icons.settings_backup_restore_outlined,
+                            color:  Color(0xFF7C3FB1),
+                          )
                       ),
 
                       SizedBox(
@@ -142,7 +168,7 @@ class _SketchpadState extends State<Sketchpad> {
                           ),
                         onPressed: (){
                             setState(() {
-                              paints.clear();
+                              strokes.clear();
                             });
                         },
                         label: Text(
@@ -166,22 +192,38 @@ class _SketchpadState extends State<Sketchpad> {
 }
 
 class namePainter extends CustomPainter{
-  List paints = [];
-  namePainter({required this.paints});
+  List <List<CustomItem>>strokes = [];
+  List <CustomItem>currentStroke=[];
+
+  namePainter({
+    required this.strokes,
+    required this.currentStroke,
+  });
+
+
   @override
   void paint(Canvas canvas, Size size){
-    for(var i = 0; i< paints.length; i++){
-        if(paints[i]!= null && paints[i+1]!= null){
-          canvas.drawLine(paints[i].offset, paints[i+1].offset, paints[i].paint);
-        }else if(paints[i] != null && paints[i+1] == null){
-          canvas.drawPoints(
-              PointMode.points, [paints[i].offset], paints[i].paint);
-        }
+    for(var stroke in strokes){
+      for (int i = 0; i < stroke.length - 1; i++) {
+        canvas.drawLine(
+          stroke[i].offset,
+          stroke[i + 1].offset,
+          stroke[i].paint,
+        );
+      }
+    }
+
+    for(int i =0; i < currentStroke.length - 1; i++){
+      canvas.drawLine(
+        currentStroke[i].offset,
+        currentStroke[i + 1].offset,
+        currentStroke[i].paint,
+      );
     }
   }
 
   @override
-  bool shouldRepaint(namePainter oldDelegate) => true;
+  bool shouldRepaint( namePainter oldDelegate) => true;
 
   @override
   bool shouldRebuildSemantics(namePainter oldDelegate) => false;

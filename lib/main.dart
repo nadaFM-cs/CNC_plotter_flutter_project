@@ -1,4 +1,4 @@
-import 'package:cnc_plotter/screens/sketchPad.dart';
+import 'package:cnc_plotter/screens/sketch_pad.dart';
 import 'package:flutter/material.dart';
 
 void main() {
