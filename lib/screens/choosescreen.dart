@@ -1,4 +1,5 @@
 import 'package:cnc_plotter/constant/color.dart';
+import 'package:cnc_plotter/screens/promot.dart';
 import 'package:cnc_plotter/screens/sketch_pad.dart';
 import 'package:cnc_plotter/screens/uploadscreen.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,31 @@ class Choosescreen extends StatelessWidget {
                         padding: EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadiusGeometry.circular(20),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 50),
+
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PromptScreen(),
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.text_fields, color: maincolor),
+                      label: Text(
+                        "Prompt",
+                        style: TextStyle(color: maincolor.withOpacity(0.7)),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        minimumSize: Size(250, 50),
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                     ),
