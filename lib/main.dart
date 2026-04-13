@@ -1,4 +1,5 @@
-import 'package:cnc_plotter/screens/sketch_pad.dart';
+
+import 'package:cnc_plotter/screens/startscreen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Sketchpad(),
+      home:  StartScreen(),
     );
   }
 }
