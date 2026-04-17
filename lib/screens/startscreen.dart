@@ -10,15 +10,12 @@ class StartScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-       
           SizedBox.expand(
             child: Image.asset(
               "Images/start.jpg",
               fit: BoxFit.cover,
             ),
           ),
-
-     
           Container(
             color: Colors.black.withOpacity(0.3),
           ),

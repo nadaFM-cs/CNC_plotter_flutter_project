@@ -91,9 +91,7 @@ class SketchpadScreen extends StatelessWidget {
                                 ),
                               ],
                             ),
-                          ),
-
-                                          
+                          ),              
                 Positioned(
                   bottom: 30,
                   left: 0,
