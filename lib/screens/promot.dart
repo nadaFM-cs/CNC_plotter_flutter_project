@@ -1,4 +1,6 @@
 import 'package:cnc_plotter/constant/color.dart';
+import 'package:cnc_plotter/constant/image_const.dart';
+import 'package:cnc_plotter/cubit/prompt_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,13 +39,15 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
   void _showConfirmationDialog(BuildContext context) {
     final cubit = context.read<PromptCubit>();
     showDialog(
-      barrierColor: Colors.white,
+      barrierColor: Colors.black54,
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Confirmation',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        content: const Text('Are you sure you want to send the image?'),
+        content:
+            const Text('Are you sure you want to send the image?'),
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         actions: [
           OutlinedButton.icon(
@@ -56,7 +60,8 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             style: OutlinedButton.styleFrom(
               foregroundColor: maincolor,
               side: BorderSide(color: maincolor),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
           ),
           ElevatedButton.icon(
@@ -69,7 +74,8 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             style: ElevatedButton.styleFrom(
               backgroundColor: maincolor,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
           ),
         ],
@@ -83,7 +89,9 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
       listener: (context, state) {
         if (state is PromptError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red),
           );
         }
         if (state is PromptSentSuccess) {
@@ -104,16 +112,18 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             title: Text(
               switch (state.screenState) {
                 PromptScreenState.inputPrompt => 'Write Your Prompt',
-                PromptScreenState.showImage   => 'Here is Your Image',
-                PromptScreenState.inputEdits  => 'Write Your Edits',
+                PromptScreenState.showImage => 'Here is Your Image',
+                PromptScreenState.inputEdits => 'Write Your Edits',
               },
-              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.black, fontWeight: FontWeight.bold),
             ),
             leading: state.screenState != PromptScreenState.inputPrompt
                 ? IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
-                      if (state.screenState == PromptScreenState.inputEdits) {
+                      if (state.screenState ==
+                          PromptScreenState.inputEdits) {
                         context.read<PromptCubit>().goBackToImage();
                       } else {
                         context.read<PromptCubit>().goBackToPrompt();
@@ -133,8 +143,9 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
   Widget _buildCurrentScreen(BuildContext context, PromptState state) =>
       switch (state.screenState) {
         PromptScreenState.inputPrompt => _buildPromptInput(context),
-        PromptScreenState.showImage   => _buildImageDisplay(context, state.imageUrl),
-        PromptScreenState.inputEdits  => _buildEditsInput(context),
+        PromptScreenState.showImage =>
+          _buildImageDisplay(context, state.imageUrl),
+        PromptScreenState.inputEdits => _buildEditsInput(context),
       };
 
   Widget _buildLoading() {
@@ -161,7 +172,8 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             maxLines: 4,
             decoration: InputDecoration(
               hintText: 'Write your prompt here...',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: maincolor, width: 2),
@@ -175,20 +187,23 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: maincolor,
                 padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
                 final prompt = _promptController.text.trim();
                 if (prompt.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please write a prompt first')),
+                    const SnackBar(
+                        content: Text('Please write a prompt first')),
                   );
                   return;
                 }
                 context.read<PromptCubit>().sendPrompt(prompt);
               },
-              icon: const Icon(Icons.auto_awesome, color: Colors.white),
-              label: const Text('Send', style: TextStyle(color: Colors.white, fontSize: 16)),
+             
+              label: const Text('Generate',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ),
         ],
@@ -202,17 +217,25 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
       child: Column(
         children: [
           Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: imageUrl != null
-                  ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => const Center(
-                        child: Icon(Icons.broken_image, size: 64, color: Colors.grey),
-                      ),
-                    )
-                  : const Center(child: Text('No image available')),
+            child: Center(
+              child: AspectRatio(
+            
+                aspectRatio: kA4WidthPx / kA4HeightPx,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: imageUrl != null
+                      ? Image.network(
+                          imageUrl,
+                      
+                        fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => const Center(
+                            child: Icon(Icons.broken_image,
+                                size: 64, color: Colors.grey),
+                          ),
+                        )
+                      : const Center(child: Text('No image available')),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -220,13 +243,17 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             children: [
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () => context.read<PromptCubit>().goToEdits(),
+                  onPressed: () =>
+                      context.read<PromptCubit>().goToEdits(),
                   icon: Icon(Icons.edit, color: maincolor),
-                  label: Text('Edit', style: TextStyle(color: maincolor, fontSize: 16)),
+                  label: Text('Edit',
+                      style:
+                          TextStyle(color: maincolor, fontSize: 16)),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(color: maincolor, width: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
@@ -235,11 +262,14 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
                 child: ElevatedButton.icon(
                   onPressed: () => _showConfirmationDialog(context),
                   icon: const Icon(Icons.send, color: Colors.white),
-                  label: const Text('Send', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  label: const Text('Send',
+                      style:
+                          TextStyle(color: Colors.white, fontSize: 16)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: maincolor,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
@@ -258,7 +288,8 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
         children: [
           const Text(
             'Write your edit here:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style:
+                TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 16),
           TextField(
@@ -266,7 +297,8 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             maxLines: 4,
             decoration: InputDecoration(
               hintText: 'Write your edit here...',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12)),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: maincolor, width: 2),
@@ -280,20 +312,24 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: maincolor,
                 padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
                 final edits = _editsController.text.trim();
                 if (edits.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please write your edit first')),
+                    const SnackBar(
+                        content:
+                            Text('Please write your edit first')),
                   );
                   return;
                 }
                 context.read<PromptCubit>().sendEdits(edits);
               },
               icon: const Icon(Icons.refresh, color: Colors.white),
-              label: const Text('Send Edit', style: TextStyle(color: Colors.white, fontSize: 16)),
+              label: const Text('Send Edit',
+                  style: TextStyle(color: Colors.white, fontSize: 16)),
             ),
           ),
         ],
