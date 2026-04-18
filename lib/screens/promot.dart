@@ -1,6 +1,7 @@
 import 'package:cnc_plotter/constant/color.dart';
 import 'package:cnc_plotter/constant/image_const.dart';
 import 'package:cnc_plotter/cubit/prompt_state.dart';
+import 'package:cnc_plotter/screens/choosescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -36,70 +37,26 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
     super.dispose();
   }
 
-  void _showConfirmationDialog(BuildContext context) {
-    final cubit = context.read<PromptCubit>();
-    showDialog(
-      barrierColor: Colors.black54,
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Confirmation',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        content:
-            const Text('Are you sure you want to send the image?'),
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: [
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              cubit.goToEdits();
-            },
-            icon: const Icon(Icons.edit),
-            label: const Text('EDIT'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: maincolor,
-              side: BorderSide(color: maincolor),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              cubit.sendFinalImageForGCode();
-            },
-            icon: const Icon(Icons.send),
-            label: const Text('SEND'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: maincolor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PromptCubit, PromptState>(
       listener: (context, state) {
         if (state is PromptError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
+
         if (state is PromptSentSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Successfully sent '),
+              content: Text('Successfully sent'),
               backgroundColor: Colors.green,
             ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const Choosescreen()),
           );
         }
       },
@@ -116,14 +73,15 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
                 PromptScreenState.inputEdits => 'Write Your Edits',
               },
               style: const TextStyle(
-                  color: Colors.black, fontWeight: FontWeight.bold),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             leading: state.screenState != PromptScreenState.inputPrompt
                 ? IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {
-                      if (state.screenState ==
-                          PromptScreenState.inputEdits) {
+                      if (state.screenState == PromptScreenState.inputEdits) {
                         context.read<PromptCubit>().goBackToImage();
                       } else {
                         context.read<PromptCubit>().goBackToPrompt();
@@ -132,21 +90,32 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
                   )
                 : null,
           ),
-          body: state is PromptLoading
-              ? _buildLoading()
-              : _buildCurrentScreen(context, state),
+         body: Stack(
+  children: [
+    _buildCurrentScreen(context, state),
+
+    if (state is PromptLoading)
+      Container(
+        color: Colors.black26,
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+  ],
+),
         );
       },
     );
   }
 
-  Widget _buildCurrentScreen(BuildContext context, PromptState state) =>
-      switch (state.screenState) {
-        PromptScreenState.inputPrompt => _buildPromptInput(context),
-        PromptScreenState.showImage =>
-          _buildImageDisplay(context, state.imageUrl),
-        PromptScreenState.inputEdits => _buildEditsInput(context),
-      };
+  Widget _buildCurrentScreen(BuildContext context, PromptState state) {
+    return switch (state.screenState) {
+      PromptScreenState.inputPrompt => _buildPromptInput(context),
+      PromptScreenState.showImage =>
+        _buildImageDisplay(context, state.imageUrl),
+      PromptScreenState.inputEdits => _buildEditsInput(context),
+    };
+  }
 
   Widget _buildLoading() {
     return const Center(
@@ -173,7 +142,8 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
             decoration: InputDecoration(
               hintText: 'Write your prompt here...',
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: maincolor, width: 2),
@@ -183,27 +153,24 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: maincolor,
                 padding: const EdgeInsets.symmetric(vertical: 15),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () {
                 final prompt = _promptController.text.trim();
-                if (prompt.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Please write a prompt first')),
-                  );
-                  return;
-                }
+                if (prompt.isEmpty) return;
+
                 context.read<PromptCubit>().sendPrompt(prompt);
               },
-             
-              label: const Text('Generate',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text(
+                'Generate',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
           ),
         ],
@@ -219,26 +186,49 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
           Expanded(
             child: Center(
               child: AspectRatio(
-            
                 aspectRatio: kA4WidthPx / kA4HeightPx,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: imageUrl != null
-                      ? Image.network(
-                          imageUrl,
-                      
-                        fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Center(
-                            child: Icon(Icons.broken_image,
-                                size: 64, color: Colors.grey),
-                          ),
-                        )
-                      : const Center(child: Text('No image available')),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.grey.shade400,
+                      width: 2,
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 4),
+                      )
+                    ],
+                  ),
+                 child: imageUrl != null
+    ? ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.contain,
+        ),
+      )
+    : Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          CircularProgressIndicator(),
+          SizedBox(height: 10),
+          Text(
+            "Waiting for AI image...",
+            style: TextStyle(color: Colors.grey),
+          ),
+        ],
+      ),
                 ),
               ),
             ),
           ),
+
           const SizedBox(height: 24),
+
           Row(
             children: [
               Expanded(
@@ -246,14 +236,9 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
                   onPressed: () =>
                       context.read<PromptCubit>().goToEdits(),
                   icon: Icon(Icons.edit, color: maincolor),
-                  label: Text('Edit',
-                      style:
-                          TextStyle(color: maincolor, fontSize: 16)),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: BorderSide(color: maincolor, width: 2),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                  label: Text(
+                    'Edit',
+                    style: TextStyle(color: maincolor),
                   ),
                 ),
               ),
@@ -262,14 +247,9 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
                 child: ElevatedButton.icon(
                   onPressed: () => _showConfirmationDialog(context),
                   icon: const Icon(Icons.send, color: Colors.white),
-                  label: const Text('Send',
-                      style:
-                          TextStyle(color: Colors.white, fontSize: 16)),
+                  label: const Text('Send'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: maincolor,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
@@ -286,51 +266,62 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Write your edit here:',
-            style:
-                TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          const SizedBox(height: 16),
           TextField(
             controller: _editsController,
             maxLines: 4,
             decoration: InputDecoration(
-              hintText: 'Write your edit here...',
+              hintText: 'Write your edits...',
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12)),
-              focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: maincolor, width: 2),
               ),
             ),
           ),
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton.icon(
+            child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: maincolor,
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
               ),
               onPressed: () {
                 final edits = _editsController.text.trim();
-                if (edits.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content:
-                            Text('Please write your edit first')),
-                  );
-                  return;
-                }
+                if (edits.isEmpty) return;
+
                 context.read<PromptCubit>().sendEdits(edits);
               },
-              icon: const Icon(Icons.refresh, color: Colors.white),
-              label: const Text('Send Edit',
-                  style: TextStyle(color: Colors.white, fontSize: 16)),
+              child: const Text(
+                'Send Edit',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showConfirmationDialog(BuildContext context) {
+    final cubit = context.read<PromptCubit>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirmation'),
+        content: const Text('Send image for G-code?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              cubit.goToEdits();
+            },
+            child: const Text('EDIT'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              cubit.sendFinalImageForGCode();
+            },
+            child: const Text('SEND'),
           ),
         ],
       ),

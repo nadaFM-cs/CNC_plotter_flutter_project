@@ -23,7 +23,7 @@ class PromptLoading extends PromptState {
 }
 
 class PromptImageReady extends PromptState {
-  const PromptImageReady({required String imageUrl})
+  const PromptImageReady({required String? imageUrl})
       : super(
           screenState: PromptScreenState.showImage,
           imageUrl: imageUrl,
