@@ -45,7 +45,7 @@ class Choosescreen extends StatelessWidget {
           ),
 
           Container(
-            height: 400,
+            height: 500,
             width: double.infinity,
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
