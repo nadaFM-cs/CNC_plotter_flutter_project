@@ -1,123 +1,160 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:cnc_plotter/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../constant/image_const.dart';
 import '../model/custom_item.dart';
+
 import 'sketch_state.dart';
-import 'package:flutter/painting.dart';   
+
+
 class SketchCubit extends Cubit<SketchState> {
-  SketchCubit()
+  final ApiService? api;
+
+  SketchCubit(this.api)
       : super(SketchState(
-          strokes: [],
-          currentStroke: [],
-          selectedColor: Color(0xFFFDEFB4),
-          strokeWidth: 5.0,
-        ));
+    strokes: [],
+    currentStroke: [],
+    selectedColor: const Color(0xFFFDEFB4),
+    strokeWidth: 5.0,
+    isSending: false,
+  ));
 
-  double smoothingFactor = 0.2; 
- final ImagePicker _picker = ImagePicker();
+  double smoothingFactor = 0.2;
+  final ImagePicker _picker = ImagePicker();
 
-  void changeColor(Color color) {
-    emit(state.copyWith(selectedColor: color));
-  }
+
+  void changeColor(Color color) => emit(state.copyWith(selectedColor: color));
 
   void changeStrokeWidth(double width) {
     emit(state.copyWith(strokeWidth: width));
   }
 
   void startStroke(Offset point) {
-    final stroke = [
+    emit(state.copyWith(currentStroke: [
       CustomItem(
         offset: point,
         paint: Paint()
           ..color = state.selectedColor
-          ..strokeWidth = state.strokeWidth,
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round,
       )
-    ];
-
-    emit(state.copyWith(currentStroke: stroke));
+    ]));
   }
 
   void updateStroke(Offset newPoint) {
     if (state.currentStroke.isEmpty) return;
 
     final lastPoint = state.currentStroke.last.offset;
-
     final smoothPoint = Offset(
       lastPoint.dx + (newPoint.dx - lastPoint.dx) * smoothingFactor,
       lastPoint.dy + (newPoint.dy - lastPoint.dy) * smoothingFactor,
     );
 
-    final updated = List<CustomItem>.from(state.currentStroke)
-      ..add(CustomItem(
-        offset: smoothPoint,
-        paint: Paint()
-          ..color = state.selectedColor
-          ..strokeWidth = state.strokeWidth
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round
-          ..style = PaintingStyle.stroke,
-      ));
-
-    emit(state.copyWith(currentStroke: updated));
+    emit(state.copyWith(
+      currentStroke: List<CustomItem>.from(state.currentStroke)
+        ..add(CustomItem(
+          offset: smoothPoint,
+          paint: Paint()
+            ..color = state.selectedColor
+            ..strokeWidth = 2
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round
+            ..style = PaintingStyle.stroke,
+        )),
+    ));
   }
 
   void endStroke() {
-    final updatedStrokes = List<List<CustomItem>>.from(state.strokes)
-      ..add(state.currentStroke);
-
     emit(state.copyWith(
-      strokes: updatedStrokes,
+      strokes: List<List<CustomItem>>.from(state.strokes)
+        ..add(state.currentStroke),
       currentStroke: [],
     ));
   }
 
   void undo() {
     if (state.strokes.isEmpty) return;
-
-    final updated = List<List<CustomItem>>.from(state.strokes)
-      ..removeLast();
-
-    emit(state.copyWith(strokes: updated));
+    emit(state.copyWith(
+      strokes: List<List<CustomItem>>.from(state.strokes)
+        ..removeLast(),
+    ));
   }
-void clear() {
-  emit(SketchState(
-    strokes: [],
-    currentStroke: [],
-    selectedColor: state.selectedColor,
-    strokeWidth: state.strokeWidth,
-    backgroundImage: null, 
-  ));
 
-  PaintingBinding.instance.imageCache.clear();
-  PaintingBinding.instance.imageCache.clearLiveImages();
-}
+  void clear() {
+    emit(SketchState(
+      strokes: [],
+      currentStroke: [],
+      selectedColor: state.selectedColor,
+      strokeWidth: state.strokeWidth,
+      backgroundFile: null,
+    ));
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
+  }
+
+  void resetState() {
+    emit(state.copyWith(
+      isSending: false,
+      isSentSuccess: false,
+      clearError: true,
+    ));
+  }
 
   Future<void> pickImage({bool fromCamera = false}) async {
-  try {
-    if (fromCamera) {
-      final status = await Permission.camera.request();
-      if (!status.isGranted) {
-        print('Camera permission denied');
-        return;
+    try {
+      if (fromCamera) {
+        final status = await Permission.camera.request();
+        if (!status.isGranted) return;
       }
-    }
+      final XFile? pickedFile = await _picker.pickImage(
+        source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1200,
+        maxHeight: 1200,
+      );
 
-    final XFile? file = await _picker.pickImage(
-      source: fromCamera ? ImageSource.camera : ImageSource.gallery,
-      imageQuality: 85,
-      maxWidth: 1200,
-      maxHeight: 1200,
-    );
-
-    if (file != null) {
-      final bytes = await file.readAsBytes();
-      emit(state.copyWith(backgroundImage: bytes));
+      if (pickedFile != null) {
+        final file = File(pickedFile.path);
+        emit(state.copyWith(backgroundFile: file));
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
     }
-  } catch (e) {
-    print('Error picking image: $e');
+  }
+
+
+  Future<void> sendSketchToApi(File file) =>
+      _sendToApi(file);
+
+  Future<void> sendUploadedImageToApi(File file) =>
+      _sendToApi(file);
+
+  Future<void> sendPromptImageToApi(File file) =>
+      _sendToApi(file);
+
+  Future<void> _sendToApi(File file) async {
+    emit(state.copyWith(
+      isSending: true,
+      isSentSuccess: false,
+      clearError: true,
+    ));
+
+    try {
+      await api?.sendFinalImage(file);
+
+      emit(state.copyWith(
+        isSending: false,
+        isSentSuccess: true,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isSending: false,
+        errorMessage: 'Failed to send: $e',
+      ));
+    }
   }
 }
-}
-
-

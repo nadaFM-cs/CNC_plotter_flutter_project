@@ -1,5 +1,5 @@
 import 'package:cnc_plotter/constant/color.dart';
-import 'package:cnc_plotter/screens/choosescreen.dart';
+import 'package:cnc_plotter/screens/choose_screen.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatelessWidget {
@@ -10,15 +10,12 @@ class StartScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-       
           SizedBox.expand(
             child: Image.asset(
               "Images/start.jpg",
               fit: BoxFit.cover,
             ),
           ),
-
-     
           Container(
             color: Colors.black.withOpacity(0.3),
           ),

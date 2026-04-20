@@ -1,7 +1,9 @@
+import 'package:cnc_plotter/constant/app_config.dart';
 import 'package:cnc_plotter/constant/color.dart';
-import 'package:cnc_plotter/screens/promot.dart';
+import 'package:cnc_plotter/core/services/api_service.dart';
+import 'package:cnc_plotter/screens/prompt.dart';
 import 'package:cnc_plotter/screens/sketch_pad.dart';
-import 'package:cnc_plotter/screens/uploadscreen.dart';
+import 'package:cnc_plotter/screens/upload_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/sketch_cubit.dart';
@@ -45,7 +47,7 @@ class Choosescreen extends StatelessWidget {
           ),
 
           Container(
-            height: 400,
+            height: 500,
             width: double.infinity,
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -80,7 +82,7 @@ class Choosescreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => BlocProvider(
-                              create: (_) => SketchCubit(),
+                              create: (_) => SketchCubit(ApiService(AppConfig.baseUrl))..resetState(),
                               child: const SketchpadScreen(),
                             ),
                           ),
@@ -107,7 +109,7 @@ class Choosescreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => BlocProvider(
-                              create: (_) => SketchCubit(), 
+                              create: (_) => SketchCubit(ApiService(AppConfig.baseUrl))..resetState(),
                               child: const UploadScreen(),
                             ),
                           ),
