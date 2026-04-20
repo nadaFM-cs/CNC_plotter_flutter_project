@@ -73,23 +73,6 @@ class _SketchpadBodyState extends State<_SketchpadBody> {
       builder: (context, state) {
         final cubit = context.read<SketchCubit>();
 
-        /*if (state.isSending) {
-          return const Scaffold(
-            backgroundColor: Colors.white,
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Sending sketch...',
-                      style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ),
-          );
-        }*/
-
         return Scaffold(
             backgroundColor: Colors.white,
             body: SafeArea(

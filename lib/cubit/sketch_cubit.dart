@@ -144,8 +144,6 @@ class SketchCubit extends Cubit<SketchState> {
     ));
 
     try {
-      //await Future.delayed(const Duration(seconds: 2)); // ده كدا وهمي أو مؤقت هللللووووو
-      //await api?.sendSketch(file);//not sure about this
       await api?.sendFinalImage(file);
 
       emit(state.copyWith(
