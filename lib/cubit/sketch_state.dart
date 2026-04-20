@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -10,7 +11,7 @@ class SketchState {
   final List<CustomItem> currentStroke;
   final Color selectedColor;
   final double strokeWidth;
-  final Uint8List? backgroundImage;
+  final File? backgroundFile;
   final bool isSending;
   final bool isSentSuccess;
   final String? errorMessage;
@@ -20,7 +21,7 @@ class SketchState {
     required this.currentStroke,
     required this.selectedColor,
     required this.strokeWidth,
-    this.backgroundImage,
+    this.backgroundFile,
     this.isSending = false,
     this.isSentSuccess = false,
     this.errorMessage,
@@ -31,7 +32,7 @@ class SketchState {
     List<CustomItem>? currentStroke,
     Color? selectedColor,
     double? strokeWidth,
-    Object? backgroundImage = _absent,
+    Object? backgroundFile = _absent,
     bool? isSending,
     bool? isSentSuccess,
     String? errorMessage,
@@ -42,9 +43,9 @@ class SketchState {
       currentStroke: currentStroke ?? this.currentStroke,
       selectedColor: selectedColor ?? this.selectedColor,
       strokeWidth: strokeWidth ?? this.strokeWidth,
-      backgroundImage: backgroundImage == _absent
-          ? this.backgroundImage
-          : backgroundImage as Uint8List?,
+      backgroundFile: backgroundFile == _absent
+          ? this.backgroundFile
+          : backgroundFile as File?,
       isSending: isSending ?? this.isSending,
       isSentSuccess: isSentSuccess ?? this.isSentSuccess,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),

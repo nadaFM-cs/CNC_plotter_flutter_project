@@ -1,9 +1,23 @@
 
-import 'package:cnc_plotter/screens/startscreen.dart';
+import 'package:cnc_plotter/screens/start_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'core/services/api_service.dart';
+import 'cubit/sketch_cubit.dart';
 
 void main() {
-  runApp(const MyApp());
+  final api = ApiService("http://192.168.137.247:8000");
+
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) => SketchCubit(api),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

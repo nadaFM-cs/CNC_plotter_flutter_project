@@ -1,87 +1,60 @@
-
 import 'package:cnc_plotter/cubit/prompt_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../core/services/api_service.dart';
 
-class PromptCubit extends Cubit< PromptState> {
+class PromptCubit extends Cubit<PromptState> {
+  final ApiService api;
 
-  PromptCubit() : super(const PromptInitial());
+  PromptCubit(this.api) : super(const PromptInitial());
+
   void goToEdits() {
-    final url = state.imageUrl;
-    if (url != null) emit(PromptEditMode(url));
+    final file = state.imageFile;
+    if (file != null) emit(PromptEditMode(file));
   }
 
   void goBackToImage() {
-    final url = state.imageUrl;
-    if (url != null) emit(PromptImageReady(imageUrl: url));
+    final file = state.imageFile;
+    if (file != null) emit(PromptImageReady(imageFile: file));
   }
 
   void goBackToPrompt() => emit(const PromptInitial());
 
   Future<void> sendPrompt(String prompt) async {
-  emit(const PromptLoading());
+    emit(const PromptLoading());
 
-  try {
-    await Future.delayed(const Duration(seconds: 2));
-
-  
-    emit(PromptImageReady(
-      imageUrl: null,
-    ));
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    emit(PromptImageReady(
-      imageUrl: "https://example.com/image.png",
-    ));
-
-  } catch (e) {
-    emit(PromptError('Failed: $e'));
+    try {
+      final file = await api.sendPrompt(prompt);
+      emit(PromptImageReady(imageFile: file));
+    } catch (e) {
+      emit(PromptError('Failed: $e'));
+    }
   }
-}
 
- Future<void> sendEdits(String edits) async {
-  final currentUrl = state.imageUrl;
+  Future<void> sendEdits(String edits) async {
+    final file = state.imageFile;
+    if (file == null) return;
 
-  try {
-    await Future.delayed(const Duration(seconds: 2));
+    emit(PromptLoading(imageFile: file));
 
-    // هنا المفروض API بيرجع صورة جديدة
-    final updatedImageUrl = "https://example.com/updated.png";
-
-    emit(PromptImageReady(
-      imageUrl: updatedImageUrl,
-    ));
-
-  } catch (e) {
-    emit(PromptError(
-      'Failed to apply edits: $e',
-      imageUrl: currentUrl,
-    ));
+    try {
+      final updated = await api.sendEdits(file, edits);
+      emit(PromptImageReady(imageFile: updated));
+    } catch (e) {
+      emit(PromptError('Edit failed: $e', imageFile: file));
+    }
   }
-}
- Future<void> sendFinalImageForGCode() async {
-  final url = state.imageUrl;
-  if (url == null) return;
 
-  try {
-    emit(PromptLoading(imageUrl: url));
+  Future<void> sendFinalImageForGCode() async {
+    final file = state.imageFile;
+    if (file == null) return;
 
-    //  هنا API الحقيقي
-    await Future.delayed(const Duration(seconds: 2));
+    emit(PromptLoading(imageFile: file));
 
-    // مثال:
-    // await api.sendImageToAI(imageUrl: url);
-
-    emit(PromptImageReady(imageUrl: url));
-
-  
-    emit(PromptSentSuccess());
-
-  } catch (e) {
-    emit(PromptError(
-      'Failed to send image: $e',
-      imageUrl: url,
-    ));
+    try {
+      await api.sendFinalImage(file);
+      emit(const PromptSentSuccess());
+    } catch (e) {
+      emit(PromptError('Send failed: $e', imageFile: file));
+    }
   }
-}
 }
