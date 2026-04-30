@@ -34,7 +34,8 @@ class _SketchpadBodyState extends State<_SketchpadBody> {
 
   Future<File> _captureAsFile() async {
     final boundary =
-    _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+        _repaintKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
 
     final image = await boundary!.toImage(pixelRatio: 3.0);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -49,6 +50,7 @@ class _SketchpadBodyState extends State<_SketchpadBody> {
 
     return file;
   }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<SketchCubit, SketchState>(
@@ -74,162 +76,163 @@ class _SketchpadBodyState extends State<_SketchpadBody> {
         final cubit = context.read<SketchCubit>();
 
         return Scaffold(
-            backgroundColor: Colors.white,
-            body: SafeArea(
-              child: Stack(
-                children: [
-              Center(
-              child: AspectRatio(
-              aspectRatio: kA4WidthPx / kA4HeightPx,
-                child: RepaintBoundary(
-                    key: _repaintKey,
-                    child: Stack(
-                      children: [
-                    Positioned.fill(
-                    child: state.backgroundFile != null
-                    ? Image.file(
-                    state.backgroundFile!,
-                      key: ValueKey(state.backgroundFile),
-                      fit: BoxFit.fill,
-                      gaplessPlayback: true,
-                    )
-                        : Container(color: Colors.white),
-              ),
-                        Positioned.fill(
-                          child: GestureDetector(
-                            onPanStart: (d) =>
-                                cubit.startStroke(d.localPosition),
-                            onPanUpdate: (d) =>
-                                cubit.updateStroke(d.localPosition),
-                            onPanEnd: (_) => cubit.endStroke(),
-                            child: CustomPaint(
-                              size: Size.infinite,
-                              painter: SketchPainter(
-                                strokes: state.strokes,
-                                currentStroke: state.currentStroke,
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: AspectRatio(
+                    aspectRatio: kA4WidthPx / kA4HeightPx,
+                    child: RepaintBoundary(
+                      key: _repaintKey,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: state.backgroundFile != null
+                                ? Image.file(
+                                    state.backgroundFile!,
+                                    key: ValueKey(state.backgroundFile),
+                                    fit: BoxFit.fill,
+                                    gaplessPlayback: true,
+                                  )
+                                : Container(color: Colors.white),
+                          ),
+                          Positioned.fill(
+                            child: GestureDetector(
+                              onPanStart: (d) =>
+                                  cubit.startStroke(d.localPosition),
+                              onPanUpdate: (d) =>
+                                  cubit.updateStroke(d.localPosition),
+                              onPanEnd: (_) => cubit.endStroke(),
+                              child: CustomPaint(
+                                size: Size.infinite,
+                                painter: SketchPainter(
+                                  strokes: state.strokes,
+                                  currentStroke: state.currentStroke,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                ),
-              ),
-              ),
-
-
-
-                  Positioned(
-                    top: 12,
-                    left: 20,
-                    right: 20,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: cubit.undo,
-                          icon: const Icon(Icons.undo,
-                              size: 28, color: maincolor),
-                        ),
-                        IconButton(
-                          onPressed: cubit.clear,
-                          icon: const Icon(Icons.delete,
-                              size: 28, color: Colors.red),
-                        ),
-                        const Spacer(),
-                        IconButton(
-                          onPressed: () async {
-                            if (state.strokes.isEmpty) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content:
-                                  Text('Please draw something first!'),
-                                ),
-                              );
-                              return;
-                            }
-
-                            final file = await _captureAsFile();
-
-                            if (context.mounted) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      PreviewScreen(imageFile: file),
-                                ),
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.send,
-                              size: 28, color: maincolor),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
+                ),
 
-
-
-                  Positioned(
-                    bottom: 30,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
-                          borderRadius: BorderRadius.circular(30),
+                Positioned(
+                  top: 12,
+                  left: 20,
+                  right: 20,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: cubit.undo,
+                        icon: const Icon(
+                          Icons.undo,
+                          size: 28,
+                          color: maincolor,
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: sketchColors.map((color) {
-                            final isSelected =
-                                state.selectedColor == color;
-
-                            return GestureDetector(
-                              onTap: () => cubit.changeColor(color),
-                              child: Container(
-                                margin:
-                                const EdgeInsets.symmetric(horizontal: 6),
-                                width: isSelected ? 38 : 32,
-                                height: isSelected ? 38 : 32,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  shape: BoxShape.circle,
-                                  border: isSelected
-                                      ? Border.all(
-                                      color: maincolor, width: 3)
-                                      : Border.all(
-                                      color: Colors.grey, width: 1),
-                                ),
+                      ),
+                      IconButton(
+                        onPressed: cubit.clear,
+                        icon: const Icon(
+                          Icons.delete,
+                          size: 28,
+                          color: Colors.red,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () async {
+                          if (state.strokes.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please draw something first!'),
                               ),
                             );
-                          }).toList(),
+                            return;
+                          }
+
+                          final file = await _captureAsFile();
+
+                          if (context.mounted) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PreviewScreen(imageFile: file),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.send,
+                          size: 28,
+                          color: maincolor,
                         ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Positioned(
+                  bottom: 30,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: sketchColors.map((color) {
+                          final isSelected = state.selectedColor == color;
+
+                          return GestureDetector(
+                            onTap: () => cubit.changeColor(color),
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 6),
+                              width: isSelected ? 38 : 32,
+                              height: isSelected ? 38 : 32,
+                              decoration: BoxDecoration(
+                                color: color,
+                                shape: BoxShape.circle,
+                                border: isSelected
+                                    ? Border.all(color: maincolor, width: 3)
+                                    : Border.all(color: Colors.grey, width: 1),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
-                  if (state.isSending)
-                    Container(
-                      color: Colors.black45,
-                      child: const Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircularProgressIndicator(color: Colors.white),
-                            SizedBox(height: 12),
-                            Text(
-                              "Sending...",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
+                ),
+                if (state.isSending)
+                  Container(
+                    color: Colors.black45,
+                    child: const Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(color: Colors.white),
+                          SizedBox(height: 12),
+                          Text(
+                            "Sending...",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
+          ),
         );
       },
     );

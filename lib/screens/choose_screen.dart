@@ -82,7 +82,7 @@ class Choosescreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => BlocProvider(
-                              create: (_) => SketchCubit(ApiService(AppConfig.baseUrl))..resetState(),
+                              create: (_) => SketchCubit()..resetState(),
                               child: const SketchpadScreen(),
                             ),
                           ),
@@ -109,7 +109,7 @@ class Choosescreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) => BlocProvider(
-                              create: (_) => SketchCubit(ApiService(AppConfig.baseUrl))..resetState(),
+                              create: (_) => SketchCubit()..resetState(),
                               child: const UploadScreen(),
                             ),
                           ),

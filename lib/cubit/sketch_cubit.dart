@@ -1,20 +1,19 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:cnc_plotter/constant/app_config.dart';
 import 'package:cnc_plotter/core/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../constant/image_const.dart';
 import '../model/custom_item.dart';
 
 import 'sketch_state.dart';
 
 
 class SketchCubit extends Cubit<SketchState> {
-  final ApiService? api;
+  final ApiService api = ApiService(AppConfig.baseUrl);
 
-  SketchCubit(this.api)
+  SketchCubit()
       : super(SketchState(
     strokes: [],
     currentStroke: [],

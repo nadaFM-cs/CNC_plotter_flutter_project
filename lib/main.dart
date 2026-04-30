@@ -6,13 +6,11 @@ import 'core/services/api_service.dart';
 import 'cubit/sketch_cubit.dart';
 
 void main() {
-  final api = ApiService("http://192.168.137.247:8000");
-
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => SketchCubit(api),
+          create: (_) => SketchCubit(),
         ),
       ],
       child: const MyApp(),
