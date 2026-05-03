@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../constant/image_const.dart';
 import '../cubit/sketch_cubit.dart';
 import '../cubit/sketch_state.dart';
+import 'countdown_screen.dart';
 
 
 class UploadScreen extends StatelessWidget {
@@ -82,10 +83,14 @@ class _UploadBodyState extends State<_UploadBody> {
           ));
         }
         if (state.isSentSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Image sent successfully!'),
-            backgroundColor: Colors.green,
-          ));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CountdownScreen(
+                timeString: state.estimatedTime ?? '0:05:00',
+              ),
+            ),
+          );
         }
       },
       builder: (context, state) {

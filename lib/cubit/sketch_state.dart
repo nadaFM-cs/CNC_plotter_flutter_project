@@ -53,6 +53,7 @@ class SketchState {
       isSending: isSending ?? this.isSending,
       isSentSuccess: isSentSuccess ?? this.isSentSuccess,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      estimatedTime: estimatedTime ?? this.estimatedTime,
     );
   }
 }
