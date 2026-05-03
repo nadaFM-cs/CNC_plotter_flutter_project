@@ -143,17 +143,21 @@ class SketchCubit extends Cubit<SketchState> {
     ));
 
     try {
-      await api?.sendFinalImage(file);
-
-      emit(state.copyWith(
-        isSending: false,
-        isSentSuccess: true,
-      ));
+      final time = await api.sendFinalImage(file);  // دلوقتي بترجع String
+      emit(
+          state.copyWith(
+              isSending: false,
+              isSentSuccess: true,
+              estimatedTime: time
+          )
+      );
     } catch (e) {
-      emit(state.copyWith(
-        isSending: false,
-        errorMessage: 'Failed to send: $e',
-      ));
+      emit(
+          state.copyWith(
+              isSending: false,
+              errorMessage: 'Failed to send: $e'
+          )
+      );
     }
   }
 }

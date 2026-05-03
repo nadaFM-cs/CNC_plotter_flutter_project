@@ -41,7 +41,9 @@ class PromptEditMode extends PromptState {
 }
 
 class PromptSentSuccess extends PromptState {
-  const PromptSentSuccess()
+  final String estimatedTime;
+
+  const PromptSentSuccess({required this.estimatedTime})
       : super(screenState: PromptScreenState.showImage);
 }
 

@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../constant/color.dart';
 import '../constant/image_const.dart';
+import 'countdown_screen.dart';
 
 class PreviewScreen extends StatelessWidget {
   final File imageFile;
@@ -19,7 +20,14 @@ class PreviewScreen extends StatelessWidget {
     return BlocListener<SketchCubit, SketchState>(
         listener: (context, state) {
           if (state.isSentSuccess) {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CountdownScreen(
+                  timeString: state.estimatedTime ?? '0:05:00',
+                ),
+              ),
+            );
           }
 
 

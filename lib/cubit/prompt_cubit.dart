@@ -51,8 +51,8 @@ class PromptCubit extends Cubit<PromptState> {
     emit(PromptLoading(imageFile: file));
 
     try {
-      await api.sendFinalImage(file);
-      emit(const PromptSentSuccess());
+      final time = await api.sendFinalImage(file);
+      emit(PromptSentSuccess(estimatedTime: time));
     } catch (e) {
       emit(PromptError('Send failed: $e', imageFile: file));
     }

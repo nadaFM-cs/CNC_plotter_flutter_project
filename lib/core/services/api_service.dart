@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+import 'dart:convert';
 
 class ApiService {
   final String baseUrl;
@@ -57,7 +58,7 @@ class ApiService {
     }
   }
 
-  Future<void> sendFinalImage(File imageFile) async {
+  Future<String> sendFinalImage(File imageFile) async {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse("$baseUrl/final"),
@@ -72,6 +73,11 @@ class ApiService {
     if (response.statusCode != 200) {
       throw Exception("Failed to send final image");
     }
+
+    final body = await response.stream.bytesToString();
+    final json = jsonDecode(body);
+    return json['time'] as String;
+
   }
 
   Future<void> sendSketch(File imageFile) async {

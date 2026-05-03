@@ -15,6 +15,8 @@ class SketchState {
   final bool isSending;
   final bool isSentSuccess;
   final String? errorMessage;
+  final String? estimatedTime;
+
 
   SketchState({
     required this.strokes,
@@ -25,6 +27,7 @@ class SketchState {
     this.isSending = false,
     this.isSentSuccess = false,
     this.errorMessage,
+    this.estimatedTime,
   });
 
   SketchState copyWith({
@@ -37,6 +40,7 @@ class SketchState {
     bool? isSentSuccess,
     String? errorMessage,
     bool clearError = false,
+    String? estimatedTime,
   }) {
     return SketchState(
       strokes: strokes ?? this.strokes,

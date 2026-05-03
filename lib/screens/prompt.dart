@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../core/services/api_service.dart';
 import '../cubit/prompt_cubit.dart';
+import 'countdown_screen.dart';
 
 class PromptScreen extends StatelessWidget {
   const PromptScreen({super.key});
@@ -58,9 +59,13 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
               backgroundColor: Colors.green,
             ),
           );
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const Choosescreen()),
+            MaterialPageRoute(
+                builder: (_) => CountdownScreen(
+                  timeString: state.estimatedTime ?? '0:05:00',
+                ),
+            ),
           );
         }
       },
