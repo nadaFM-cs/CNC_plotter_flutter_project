@@ -16,7 +16,10 @@ class ApiService {
 
     request.fields['text'] = prompt;
 
-    var response = await request.send();
+    var response = await request.send().timeout(
+      const Duration(seconds: 60),
+      onTimeout: () => throw Exception('Image generation timed out'),
+    );
 
     if (response.statusCode == 200) {
       final bytes = await response.stream.toBytes();
@@ -36,14 +39,16 @@ class ApiService {
       'POST',
       Uri.parse("$baseUrl/edit"),
     );
-
     request.fields['edits'] = edits;
 
     request.files.add(
       await http.MultipartFile.fromPath('image', imageFile.path),
     );
 
-    var response = await request.send();
+    var response = await request.send().timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => throw Exception('Edit request timed out'),
+    );
 
     if (response.statusCode == 200) {
       final bytes = await response.stream.toBytes();
@@ -68,7 +73,10 @@ class ApiService {
       await http.MultipartFile.fromPath('image', imageFile.path),
     );
 
-    var response = await request.send();
+    var response = await request.send().timeout(
+      const Duration(seconds: 30),
+      onTimeout: () => throw Exception('Connection to CNC timed out'),
+    );
 
     if (response.statusCode != 200) {
       throw Exception("Failed to send final image");

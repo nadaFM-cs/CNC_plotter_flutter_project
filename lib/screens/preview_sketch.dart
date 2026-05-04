@@ -98,7 +98,7 @@ class PreviewScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(ctx);
 
-                  context.read<SketchCubit>().sendSketchToApi(imageFile);
+                  context.read<SketchCubit>().sendToApi(imageFile);
 
                 },
                 child: const Text("Confirm"),

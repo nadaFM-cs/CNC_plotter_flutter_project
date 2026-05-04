@@ -11,9 +11,9 @@ import 'sketch_state.dart';
 
 
 class SketchCubit extends Cubit<SketchState> {
-  final ApiService api = ApiService(AppConfig.baseUrl);
+  final ApiService api;
 
-  SketchCubit()
+  SketchCubit(this.api)
       : super(SketchState(
     strokes: [],
     currentStroke: [],
@@ -126,38 +126,13 @@ class SketchCubit extends Cubit<SketchState> {
   }
 
 
-  Future<void> sendSketchToApi(File file) =>
-      _sendToApi(file);
-
-  Future<void> sendUploadedImageToApi(File file) =>
-      _sendToApi(file);
-
-  Future<void> sendPromptImageToApi(File file) =>
-      _sendToApi(file);
-
-  Future<void> _sendToApi(File file) async {
-    emit(state.copyWith(
-      isSending: true,
-      isSentSuccess: false,
-      clearError: true,
-    ));
-
+  Future<void> sendToApi(File file) async {
+    emit(state.copyWith(isSending: true, isSentSuccess: false, clearError: true));
     try {
-      final time = await api.sendFinalImage(file);  // دلوقتي بترجع String
-      emit(
-          state.copyWith(
-              isSending: false,
-              isSentSuccess: true,
-              estimatedTime: time
-          )
-      );
+      final time = await api.sendFinalImage(file);
+      emit(state.copyWith(isSending: false, isSentSuccess: true, estimatedTime: time));
     } catch (e) {
-      emit(
-          state.copyWith(
-              isSending: false,
-              errorMessage: 'Failed to send: $e'
-          )
-      );
+      emit(state.copyWith(isSending: false, errorMessage: 'Failed to send: $e'));
     }
   }
 }

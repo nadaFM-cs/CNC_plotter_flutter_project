@@ -52,7 +52,7 @@ class _UploadBodyState extends State<_UploadBody> {
           ElevatedButton.icon(
             onPressed: () async {
               Navigator.of(ctx).pop();
-              await cubit.sendUploadedImageToApi(
+              await cubit.sendToApi(
                   cubit.state.backgroundFile!
               );
             },

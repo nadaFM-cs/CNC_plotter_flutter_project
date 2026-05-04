@@ -275,36 +275,46 @@ class _PromptScreenBodyState extends State<_PromptScreenBody> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          TextField(
-            controller: _editsController,
-            maxLines: 4,
-            decoration: InputDecoration(
-              hintText: 'Write your edits...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
+          const Text('Choose edit style:',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: maincolor,
-              ),
-              onPressed: () {
-                final edits = _editsController.text.trim();
-                if (edits.isEmpty) return;
 
-                context.read<PromptCubit>().sendEdits(edits);
-              },
-              child: const Text(
-                'Send Edit',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ),
+          _buildEditOption(context, 'line_art', 'Line Art',
+              'Clean lines, black and white', Icons.format_paint),
+          const SizedBox(height: 16),
+          _buildEditOption(context, 'real_art', 'Real Art',
+              'Realistic style with details', Icons.brush),
         ],
+      ),
+    );
+  }
+
+  Widget _buildEditOption(BuildContext context, String value,
+      String title, String subtitle, IconData icon) {
+    return GestureDetector(
+      onTap: () => context.read<PromptCubit>().sendEdits(value),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: maincolor),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: maincolor),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(
+                    fontWeight: FontWeight.w500, fontSize: 15)),
+                Text(subtitle, style: const TextStyle(
+                    color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
