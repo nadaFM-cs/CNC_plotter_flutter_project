@@ -34,7 +34,6 @@ class _CountdownScreenState extends State<CountdownScreen>
   }
 
   int _parseTime(String t) {
-    // da 3lshan y handle el counter
     final parts = t.split(':').map(int.parse).toList();
     if (parts.length == 3) {
       return parts[0] * 3600 + parts[1] * 60 + parts[2];
